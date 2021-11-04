@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Validator;
 use App\User;
 use App\Validation\User as UserValidation;
 use App\Repositories\User as UserRepository;

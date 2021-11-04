@@ -14,7 +14,7 @@ class User extends BaseValidation {
             return $this->baseValidation($request->all(), [
                 'full_name' => 'required|string',
                 'cpf' => 'required|integer|digits:11',
-                'email' => 'required|string',
+                'email' => 'required|string|email',
                 'password' => 'required|string'
             ]);
         }

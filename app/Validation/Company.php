@@ -14,7 +14,7 @@ class Company extends BaseValidation {
             return $this->baseValidation($request->all(), [
                 'company_name' => 'required|string',
                 'cnpj' => 'required|integer|digits:14',
-                'email' => 'required|string',
+                'email' => 'required|string|email',
                 'password' => 'required|string'
             ]);
         }

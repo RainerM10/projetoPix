@@ -18,4 +18,18 @@ class Account extends Model {
         'updated_at'
     ];
     public $timestamps = true;
+
+    public function getUser($data) {
+        return Account::where(['email' => $data])
+            ->orWhere(['document' => $data])
+            ->get()->toArray();
+    }
+
+    public function addValue($arrayTransfer) {
+        return Account::find($arrayTransfer['arrayPayee']['id'])->increment('balance', $arrayTransfer['value']);
+    }
+
+    public function decrementValue($arrayTransfer) {
+        return Account::find($arrayTransfer['arrayPayer']['id'])->decrement('balance', $arrayTransfer['value']);
+    }
 }
