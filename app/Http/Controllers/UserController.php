@@ -6,9 +6,33 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 use App\User;
+use App\Validation\User as UserValidation;
+use App\Repositories\User as UserRepository;
 
-class UserController extends Controller
-{
+class UserController extends Controller {
+    /**
+     * @var UserValidation
+     */
+    protected $userValidation;
+
+    /**
+     * @var UserRepository
+     */
+    protected $userRepository;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param UserValidation $userValidation
+     * @param UserRepository $userRepository
+     * @return void
+     */
+    public function __construct(UserValidation $userValidation, UserRepository $userRepository)
+    {
+        $this->userValidation = $userValidation;
+        $this->userRepository = $userRepository;
+    }
+
     ////////////////////////////////////////////////////////////////
     ///////////////////////////// CRUD /////////////////////////////
     ////////////////////////////////////////////////////////////////
@@ -21,7 +45,7 @@ class UserController extends Controller
      */
     public function create(Request $request, User $user) {
         // Iremos validar os parâmetros que vieram da requisição.
-        if ($this->validateDate($request)) {
+        if ($this->userValidation->validateDate($request)) {
             $arrayInsert = [
                 'fullName' => $request->full_name,
                 'cpf' => $request->cpf,
@@ -30,7 +54,7 @@ class UserController extends Controller
             ];
             // Caso os parâmetros estejam de acordo com os requesitos,
             // envia os dados para ser persistido no banco.
-            $insertUser = $user->insert($arrayInsert);
+            $insertUser = $this->userRepository->create($user, $arrayInsert);
             if ($insertUser['status']) {
                 $retorno['message'] = 'O usuário foi cadastrado com sucesso.';
                 $retorno['status'] = true;
@@ -52,30 +76,5 @@ class UserController extends Controller
             $code = 400;  
         }
         return response()->json($retorno, $code);
-    }
-
-    ////////////////////////////////////////////////////////////////
-    ////////////////////////// VALIDAÇÃO ///////////////////////////
-    ////////////////////////////////////////////////////////////////
-
-    /**
-     * Validate the data.
-     * 
-     * @param Request $request
-     * @return boolean
-     */
-    private function validateDate($request = null) {
-        if ($request != null) {
-            $validated = Validator::make($request->all(), [
-                'full_name' => 'required|string',
-                'cpf' => 'required|integer|digits:11',
-                'email' => 'required|string',
-                'password' => 'required|string',
-            ]);
-            if (!$validated->fails()) {
-                return true;
-            }
-        }
-        return false;
     }
 }

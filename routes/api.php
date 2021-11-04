@@ -19,3 +19,7 @@ Route::post('users/create', 'UserController@create');
 
 // Rotas para o CRUD do usuário lojista
 Route::post('company/create', 'CompanyController@create');
+
+// Rotas para realizar transações.
+Route::post('transaction', 'TransactionController@made');
+

@@ -4,11 +4,34 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Validator;
 use App\Company;
+use App\Validation\Company as CompanyValidation;
+use App\Repositories\Company as CompanyRepository;
 
 class CompanyController extends Controller
 {
+    /**
+     * @var CompanyValidation
+     */
+    protected $companyValidation;
+
+    /**
+     * @var CompanyRepository
+     */
+    protected $companyRepository;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param CompanyValidation $userValidation
+     * @return void
+     */
+    public function __construct(CompanyValidation $companyValidation, CompanyRepository $companyRepository)
+    {
+        $this->companyValidation = $companyValidation;
+        $this->companyRepository = $companyRepository;
+    }
+
     ////////////////////////////////////////////////////////////////
     ///////////////////////////// CRUD /////////////////////////////
     ////////////////////////////////////////////////////////////////
@@ -21,8 +44,8 @@ class CompanyController extends Controller
      */
     public function create(Request $request, Company $company) {
         // Iremos validar os parâmetros que vieram da requisição.
-        if ($this->validateDate($request)) {
-            $arrayUser = [
+        if ($this->companyValidation->validateDate($request)) {
+            $arrayInsert = [
                 'companyName' => $request->company_name,
                 'cnpj' => $request->cnpj,
                 'email' => $request->email,
@@ -30,7 +53,7 @@ class CompanyController extends Controller
             ];
             // Caso os parâmetros estejam de acordo com os requesitos,
             // envia os dados para ser persistido no banco.
-            $insertUser = $company->insert($arrayUser);
+            $insertUser = $this->companyRepository->create($company, $arrayInsert);
             if ($insertUser['status']) {
                 $retorno['message'] = 'O lojista foi cadastrado com sucesso.';
                 $retorno['status'] = true;
@@ -52,30 +75,5 @@ class CompanyController extends Controller
             $code = 400;  
         }
         return response()->json($retorno, $code);
-    }
-
-    ////////////////////////////////////////////////////////////////
-    ////////////////////////// VALIDAÇÃO ///////////////////////////
-    ////////////////////////////////////////////////////////////////
-
-    /**
-     * Validate the data.
-     * 
-     * @param Request $request
-     * @return boolean
-     */
-    private function validateDate($request = null) {
-        if ($request != null) {
-            $validated = Validator::make($request->all(), [
-                'company_name' => 'required|string',
-                'cnpj' => 'required|integer|digits:14',
-                'email' => 'required|string',
-                'password' => 'required|string',
-            ]);
-            if (!$validated->fails()) {
-                return true;
-            }
-        }
-        return false;
     }
 }
