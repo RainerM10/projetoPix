@@ -134,3 +134,16 @@ Caso não tenha atingido aceitavelmente o que estamos propondo acima, não iremo
 
 ## POSTMAN
 https://www.getpostman.com/collections/83962621f7ad76219d40
+
+# Como Usar o Projeto
+
+## Banco de Dados
+- Crie no seu banco de dados local, um schema com o nome de "payment".
+- Configure seu arquivo .env
+- Rode o migration do Laravel. Executando o comando "php artisan migrate".
+
+## Rodando a API
+- Coloque seu servidor para rodar. A forma disso ser feito é de acordo com sua preferência.
+- Importe no POSTMAN a coleção que está em anexo.
+- Feito isso, no próprio POSTMAN, é possível verificar as requisições e as variáveis que são necessárias para o envio.
+- Use e abuse da API.
