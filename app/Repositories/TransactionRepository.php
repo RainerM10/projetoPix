@@ -3,6 +3,7 @@
 namespace App\Repositories;
 use App\Account;
 use App\Transaction;
+use App\Http\Requests\TransactionRequest;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -90,16 +91,17 @@ class TransactionRepository extends BaseRepository {
      */
     public function transfer($arrayTransfer) {
         $transaction = new Transaction();
+        $transactionRequest = new TransactionRequest();
         $account = new Account();
         DB::beginTransaction();
         try {
-            if($this->authorizationMock('https://run.mocky.io/v3/8fafdd68-a090-496f-8c9a-3442cf30dae6')) {
+            if($transactionRequest->authorizationMock()) {
                 // Record the transfer in transfer history.
                 $id = $transaction->transfer($arrayTransfer);
                 // Changes user balance amounts.
                 $addValue = $account->addValue($arrayTransfer);
                 $decrementValue = $account->decrementValue($arrayTransfer);
-                if ($this->authorizationMock('http://o4d9z.mocklab.io/notify')) {
+                if ($transactionRequest->communicationMock()) {
                     // If no error occurs during the update,
                     // the transfer is persisted in the database.
                     DB::commit();
@@ -126,42 +128,6 @@ class TransactionRepository extends BaseRepository {
                 'status' => false,
                 'message' => 'Ocorreu um erro inesperado ao realizar a transferência.'
             ];
-        }
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * This function made the request to authorization services.
-     * 
-     * @return boolean
-     */
-    private function authorizationMock() {
-        try {
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://run.mocky.io/v3/8fafdd68-a090-496f-8c9a-3442cf30dae6',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 15,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'GET',
-            ));
-            $response = curl_exec($curl);
-            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            curl_close($curl);
-            // Check if the answer was successful.
-            if ($httpcode == 200) {
-                $response = json_decode($response);
-                if ($response->message == 'Autorizado') {
-                    return true;
-                }
-                return false;
-            }
-        } catch (Exception $e) {
-            return false;
         }
     }
 }

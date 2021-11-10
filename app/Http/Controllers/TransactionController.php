@@ -55,7 +55,7 @@ class TransactionController extends Controller {
                     $retorno['message'] = $arrayResponse['message'];
                     $code = 200;
                 } else {
-                    $retorno['status'] = true;
+                    $retorno['status'] = false;
                     $retorno['message'] = $arrayResponse['message'];
                     $code = 500;
                 }

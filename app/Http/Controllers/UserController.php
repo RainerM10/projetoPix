@@ -61,12 +61,12 @@ class UserController extends Controller {
                 if ($insertUser['status']) {
                     $retorno['message'] = 'O usuário foi cadastrado com sucesso.';
                     $retorno['status'] = true;
-                    $code = 200;  
+                    $code = 201;  
                 } else {
                     if ($insertUser['error']) {
                         $retorno['message'] = 'O e-mail ou CPF já foi cadastrado na conta de algum outro usuário.';
                         $retorno['status'] = false;
-                        $code = 403; 
+                        $code = 409; 
                     } else {
                         $retorno['message'] = 'Ocorreu um erro inesperado ao cadastrar o usuário.';
                         $retorno['status'] = false;
