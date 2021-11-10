@@ -18,7 +18,8 @@ class CreateCompanyTable extends Migration
             $table->string('companyName');
             $table->string('password');
             $table->integer('account_id')->unsigned();
-            $table->timestamps();
+            $table->timestamp('createdAt')->nullable();
+            $table->timestamp('updatedAt')->nullable();
 
             $table->foreign('account_id')->references('id')->on('account');
         });

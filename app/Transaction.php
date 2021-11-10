@@ -14,8 +14,14 @@ class Transaction extends Model {
         'payer_id', 
         'value'
     ];
-    // public $timestamps = true;
 
+    /**
+     * Performs the transfer in the database.
+     * 
+     * @param array $arrayTransfer
+     * 
+     * @return object
+     */
     public function transfer($arrayTransfer) {
         return Transaction::insertGetId([
             'receiver_id' => $arrayTransfer['arrayPayee']['id'],

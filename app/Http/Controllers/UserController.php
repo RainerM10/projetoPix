@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\User;
-use App\Validation\User as UserValidation;
-use App\Repositories\User as UserRepository;
+use App\Validation\UserValidation;
+use App\Repositories\UserRepository;
 
 class UserController extends Controller {
     /**
@@ -24,10 +24,10 @@ class UserController extends Controller {
      *
      * @param UserValidation $userValidation
      * @param UserRepository $userRepository
+     * 
      * @return void
      */
-    public function __construct(UserValidation $userValidation, UserRepository $userRepository)
-    {
+    public function __construct(UserValidation $userValidation, UserRepository $userRepository) {
         $this->userValidation = $userValidation;
         $this->userRepository = $userRepository;
     }
@@ -40,10 +40,12 @@ class UserController extends Controller {
      * Create a new consumer user.
      * 
      * @param Request $request
-     * @return array
+     * @param User $user
+     * 
+     * @return ResponseFactory
      */
     public function create(Request $request, User $user) {
-        // Iremos validar os parâmetros que vieram da requisição.
+        // We will validate the request parameters.
         if ($this->userValidation->validateDate($request)) {
             $arrayInsert = [
                 'fullName' => $request->full_name,
@@ -51,8 +53,8 @@ class UserController extends Controller {
                 'email' => $request->email,
                 'password' => $request->password
             ];
-            // Caso os parâmetros estejam de acordo com os requesitos,
-            // envia os dados para ser persistido no banco.
+            // If the parameters meet the requirements,
+            // send the data to be persisted in the database.
             $insertUser = $this->userRepository->create($user, $arrayInsert);
             if ($insertUser['status']) {
                 $retorno['message'] = 'O usuário foi cadastrado com sucesso.';

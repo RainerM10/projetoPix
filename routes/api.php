@@ -14,12 +14,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Rotas para o CRUD do usuário consumidor
-Route::post('users/create', 'UserController@create');
+$router->group(['prefix' => ''], function () use ($router) {
+    // Rotas para realizar transações.
+    Route::post('transaction', 'TransactionController@made');
+});
 
-// Rotas para o CRUD do usuário lojista
-Route::post('company/create', 'CompanyController@create');
+$router->group(['prefix' => 'users'], function () use ($router) {
+    // Rotas para o CRUD do usuário consumidor
+    Route::post('create', 'UserController@create');
+});
 
-// Rotas para realizar transações.
-Route::post('transaction', 'TransactionController@made');
-
+$router->group(['prefix' => 'company'], function () use ($router) {
+    // Rotas para o CRUD do usuário lojista
+    Route::post('create', 'CompanyController@create');
+});

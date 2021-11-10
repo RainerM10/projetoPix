@@ -2,14 +2,14 @@
 
 namespace App\Repositories;
 
-class User extends BaseRepository {
+class UserRepository extends BaseRepository {
     /**
      * Create a new User.
      * 
      * @param Model $model
      * @param array $arrayInsert
      * 
-     * @return boolean
+     * @return boolean/array
      */
     public function create($model = null, $arrayInsert = null) {
         if ($model != null && $arrayInsert != null) {

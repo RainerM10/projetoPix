@@ -5,11 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Company;
-use App\Validation\Company as CompanyValidation;
-use App\Repositories\Company as CompanyRepository;
+use App\Validation\CompanyValidation;
+use App\Repositories\CompanyRepository;
 
-class CompanyController extends Controller
-{
+class CompanyController extends Controller {
     /**
      * @var CompanyValidation
      */
@@ -23,11 +22,12 @@ class CompanyController extends Controller
     /**
      * Create a new controller instance.
      *
-     * @param CompanyValidation $userValidation
+     * @param CompanyValidation $companyValidation
+     * @param CompanyRepository $companyRepository
+     * 
      * @return void
      */
-    public function __construct(CompanyValidation $companyValidation, CompanyRepository $companyRepository)
-    {
+    public function __construct(CompanyValidation $companyValidation, CompanyRepository $companyRepository) {
         $this->companyValidation = $companyValidation;
         $this->companyRepository = $companyRepository;
     }
@@ -40,10 +40,12 @@ class CompanyController extends Controller
      * Create a new company.
      * 
      * @param Request $request
-     * @return array
+     * @param Company $company
+     * 
+     * @return ResponseFactory
      */
     public function create(Request $request, Company $company) {
-        // Iremos validar os parâmetros que vieram da requisição.
+        // We will validate the request parameters.
         if ($this->companyValidation->validateDate($request)) {
             $arrayInsert = [
                 'companyName' => $request->company_name,
@@ -51,8 +53,8 @@ class CompanyController extends Controller
                 'email' => $request->email,
                 'password' => $request->password
             ];
-            // Caso os parâmetros estejam de acordo com os requesitos,
-            // envia os dados para ser persistido no banco.
+            // If the parameters meet the requirements,
+            // send the data to be persisted in the database.
             $insertUser = $this->companyRepository->create($company, $arrayInsert);
             if ($insertUser['status']) {
                 $retorno['message'] = 'O lojista foi cadastrado com sucesso.';

@@ -2,39 +2,39 @@
 
 namespace App\Repositories;
 use App\Account;
-use App\Transaction as TransactionModel;
+use App\Transaction;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class Transaction extends BaseRepository {
+class TransactionRepository extends BaseRepository {
     /**
      * Verify if the users can made the transfer.
      * 
      * @param array $arrayRequest;
      * 
-     * @return boolean
+     * @return array
      */
     public function verifyData($arrayRequest) {
         $arrayPayer = $this->collectData(0, $arrayRequest);
         $arrayPayee = $this->collectData(1, $arrayRequest);
-        // Confere se o pagador existe.
+        // Check if the payer exists.
         if ($arrayPayer != null && $arrayPayee != null) {
-            // Caso exista, o usuário não pode ser do tipo lojista.
+            // If so, the user cannot be a company.
             if ($arrayPayer[0]['role_id'] == 2) {
                 return [
                     'status' => false,
                     'message' => 'Esse tipo de usuário não pode realizar pagamentos.'
                 ];
             }
-            // Confere se o usuário que está realizando o pagamento, possui
-            // em saldo o dinheiro para realizar o pagamento.
+            // Checks whether the user who is making the payment has
+            // in balance the money to make the payment.
             if ($arrayRequest['value'] > $arrayPayer[0]['balance']) {
                 return [
                     'status' => false,
                     'message' => 'O usuário não possui o valor em saldo.'
                 ];  
             }
-            // Caso não haja erro, retornaremos os dados dos usuários para o controller.
+            // If there is no error, we will return transfer data to the controller.
             return [
                 'status' => true,
                 'arrayPayer' => $arrayPayer[0],
@@ -54,11 +54,14 @@ class Transaction extends BaseRepository {
     /**
      * Collect data from request.
      * 
-     * @param 
+     * @param int $role
+     * @param array $arrayRequest
+     * 
+     * @return object
      */
     private function collectData($role, $arrayRequest) {
         $account = new Account();
-        // Usuário pagador.
+        // Payer User.
         if ($role == 0) {
             if (isset($arrayRequest['email_payer'])) {
                 return $account->getUser($arrayRequest['email_payer']);
@@ -82,22 +85,23 @@ class Transaction extends BaseRepository {
      * This function made the action of transfer.
      * 
      * @param array $arrayTransfer
+     * 
      * @return array
      */
     public function transfer($arrayTransfer) {
-        $transaction = new TransactionModel();
+        $transaction = new Transaction();
         $account = new Account();
         DB::beginTransaction();
         try {
             if($this->authorizationMock('https://run.mocky.io/v3/8fafdd68-a090-496f-8c9a-3442cf30dae6')) {
-                // Registra a transferência no histórico de transferência.
+                // Record the transfer in transfer history.
                 $id = $transaction->transfer($arrayTransfer);
-                // Muda os valores do saldo dos usuários.
+                // Changes user balance amounts.
                 $addValue = $account->addValue($arrayTransfer);
                 $decrementValue = $account->decrementValue($arrayTransfer);
                 if ($this->authorizationMock('http://o4d9z.mocklab.io/notify')) {
-                    // Caso não ocorra nenhum erro durante o update,
-                    // é persistido no a transferência.
+                    // If no error occurs during the update,
+                    // the transfer is persisted in the database.
                     DB::commit();
                     return [
                         'status' => true,
@@ -130,10 +134,9 @@ class Transaction extends BaseRepository {
     /**
      * This function made the request to authorization services.
      * 
-     * @param array $arrayTransfer
-     * @return array
+     * @return boolean
      */
-    private function authorizationMock($url) {
+    private function authorizationMock() {
         try {
             $curl = curl_init();
             curl_setopt_array($curl, array(
@@ -149,7 +152,7 @@ class Transaction extends BaseRepository {
             $response = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
-            // Confere se houve sucesso na resposta.
+            // Check if the answer was successful.
             if ($httpcode == 200) {
                 $response = json_decode($response);
                 if ($response->message == 'Autorizado') {

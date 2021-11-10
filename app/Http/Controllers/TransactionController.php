@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Validation\Transaction as TransactionValidation;
-use App\Repositories\Transaction as TransactionRepositories;
+use App\Validation\TransactionValidation;
+use App\Repositories\TransactionRepository;
 
 class TransactionController extends Controller {
     /**
@@ -13,20 +13,21 @@ class TransactionController extends Controller {
     protected $transactionValidation;
 
     /**
-     * @var TransactionRepositories
+     * @var TransactionRepository
      */
-    protected $transactionRepositories;
+    protected $transactionRepository;
 
     /**
      * Create a new controller instance.
      *
      * @param TransactionValidation $transactionValidation
+     * @param TransactionRepository $transactionRepository
+     * 
      * @return void
      */
-    public function __construct(TransactionValidation $transactionValidation, TransactionRepositories $transactionRepositories)
-    {
+    public function __construct(TransactionValidation $transactionValidation, TransactionRepository $transactionRepository) {
         $this->transactionValidation = $transactionValidation;
-        $this->transactionRepositories = $transactionRepositories;
+        $this->transactionRepository = $transactionRepository;
     }
 
     //////////////////////////////////////////////////////////////////////////////////
@@ -35,13 +36,14 @@ class TransactionController extends Controller {
      * This request will made the transfer.
      * 
      * @param Request $request
-     * @return array
+     * 
+     * @return ResponseFactory
      */
     public function made(Request $request) {
-        // Iremos validar os parâmetros que vieram da requisição.
+        // We will validate the request parameters.
         if ($this->transactionValidation->validateDate($request)) {
-            // Confere se os usuários podem realizar a transferência.
-            $arrayTransfer = $this->transactionRepositories->verifyData($request->all());
+            // Checks if users can made the transfer.
+            $arrayTransfer = $this->transactionRepository->verifyData($request->all());
             if ($arrayTransfer['status'] == false) {
                 $retorno['message'] = $arrayTransfer['message'];
                 $retorno['status'] = false;
@@ -72,9 +74,10 @@ class TransactionController extends Controller {
      * This function made the action of transfer.
      * 
      * @param array $arrayTransfer
+     * 
      * @return array
      */
     private function transfer($arrayTransfer) {
-        return $this->transactionRepositories->transfer($arrayTransfer);
+        return $this->transactionRepository->transfer($arrayTransfer);
     }
 }

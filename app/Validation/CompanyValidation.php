@@ -2,11 +2,12 @@
 
 namespace App\Validation;
 
-class Company extends BaseValidation {
+class CompanyValidation extends BaseValidation {
     /**
      * Validate the data.
      * 
      * @param Request $request
+     * 
      * @return boolean
      */
     public function validateDate($request = null) {
