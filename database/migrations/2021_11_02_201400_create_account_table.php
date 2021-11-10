@@ -19,8 +19,7 @@ class CreateAccountTable extends Migration
             $table->char('document', 14)->unique();
             $table->decimal('balance')->default(0.00);
             $table->integer('role_id')->unsigned();
-            $table->timestamp('createdAt')->nullable();
-            $table->timestamp('updatedAt')->nullable();
+            $table->timestamps();
 
             $table->foreign('role_id')->references('id')->on('roleType');
         });

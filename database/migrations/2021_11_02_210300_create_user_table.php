@@ -18,8 +18,7 @@ class CreateUserTable extends Migration
             $table->string('fullName');
             $table->string('password');
             $table->integer('account_id')->unsigned();
-            $table->timestamp('createdAt')->nullable();
-            $table->timestamp('updatedAt')->nullable();
+            $table->timestamps();
 
             $table->foreign('account_id')->references('id')->on('account');
         });
