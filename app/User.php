@@ -15,4 +15,16 @@ class User extends Model {
         'updated_at'
     ];
     public $timestamps = true;
+
+    /**
+     * Collects the user, via account_id.
+     * 
+     * @param string @data
+     * 
+     * @return object
+     */
+    public function getUserByAccountId($data) {
+        return User::where(['account_id' => $data])
+            ->get()->toArray();
+    }
 }

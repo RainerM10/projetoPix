@@ -46,7 +46,7 @@ class CompanyController extends Controller {
      */
     public function create(Request $request, Company $company) {
         // We will validate the request parameters.
-        if ($this->companyValidation->validateDate($request)) {
+        if ($this->companyValidation->validateData($request)) {
             $arrayInsert = [
                 'companyName' => $request->company_name,
                 'cnpj' => $request->cnpj,
@@ -79,7 +79,7 @@ class CompanyController extends Controller {
                 $code = 400;      
             }
         } else {
-            $retorno['message'] = 'Algum(ns) do(s) parâmetros enviados não seguem o padrão exigido.';
+            $retorno['message'] = 'Algum(ns) do(s) parâmetros enviados não seguem o padrão exigido ou estão faltando.';
             $retorno['status'] = false;
             $code = 400;  
         }

@@ -41,27 +41,36 @@ class TransactionController extends Controller {
      */
     public function made(Request $request) {
         // We will validate the request parameters.
-        if ($this->transactionValidation->validateDate($request)) {
-            // Checks if users can made the transfer.
-            $arrayTransfer = $this->transactionRepository->verifyData($request->all());
-            if ($arrayTransfer['status'] == false) {
-                $retorno['message'] = $arrayTransfer['message'];
-                $retorno['status'] = false;
-                $code = 500;
-            } else {
-                $arrayResponse = $this->transfer($arrayTransfer);
-                if ($arrayResponse['status']) {
-                    $retorno['status'] = true;
-                    $retorno['message'] = $arrayResponse['message'];
-                    $code = 200;
-                } else {
+        if ($this->transactionValidation->validateData($request)) {
+            if ($this->transactionValidation->validateCommonData($request)) {
+                // Checks if users can made the transfer.
+                $arrayTransfer = $this->transactionRepository->verifyData($request->all());
+                if ($arrayTransfer['status'] == false) {
+                    $retorno['message'] = $arrayTransfer['message'];
                     $retorno['status'] = false;
-                    $retorno['message'] = $arrayResponse['message'];
                     $code = 500;
+                } else {
+                    $arrayResponse = $this->transfer($arrayTransfer);
+                    if ($arrayResponse['status']) {
+                        $retorno['status'] = true;
+                        $retorno['message'] = $arrayResponse['message'];
+                        $retorno['idPayer'] = $arrayResponse['idPayer'];
+                        $retorno['idPayee'] = $arrayResponse['idPayee'];
+                        $retorno['value'] = $arrayResponse['value'];
+                        $code = 200;
+                    } else {
+                        $retorno['status'] = false;
+                        $retorno['message'] = $arrayResponse['message'];
+                        $code = 500;
+                    }
                 }
+            } else {
+                $retorno['message'] = 'O usuário pagador, não pode ser o mesmo usuário a receber.';
+                $retorno['status'] = false;
+                $code = 400;  
             }
         } else {
-            $retorno['message'] = 'Algum(ns) do(s) parâmetros enviados não seguem o padrão exigido.';
+            $retorno['message'] = 'Algum(ns) do(s) parâmetros enviados não seguem o padrão exigido ou estão faltando.';
             $retorno['status'] = false;
             $code = 400;  
         }

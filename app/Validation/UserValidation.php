@@ -10,7 +10,7 @@ class UserValidation extends BaseValidation {
      * 
      * @return boolean
      */
-    public function validateDate($request = null) {
+    public function validateData($request = null) {
         if ($request != null) {
             return $this->baseValidation($request->all(), [
                 'full_name' => 'required|string',

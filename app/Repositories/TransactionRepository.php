@@ -3,6 +3,7 @@
 namespace App\Repositories;
 use App\Account;
 use App\Transaction;
+use App\User;
 use App\Http\Requests\TransactionRequest;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -20,28 +21,35 @@ class TransactionRepository extends BaseRepository {
         $arrayPayee = $this->collectData(1, $arrayRequest);
         // Check if the payer exists.
         if ($arrayPayer != null && $arrayPayee != null) {
-            // If so, the user cannot be a company.
-            if ($arrayPayer[0]['role_id'] == 2) {
+            if ($this->verifyPassword($arrayRequest, $arrayPayer)) {
+                // If so, the user cannot be a company.
+                if ($arrayPayer[0]['role_id'] == 2) {
+                    return [
+                        'status' => false,
+                        'message' => 'Esse tipo de usuário não pode realizar pagamentos.'
+                    ];
+                }
+                // Checks whether the user who is making the payment has
+                // in balance the money to make the payment.
+                if ($arrayRequest['value'] > $arrayPayer[0]['balance']) {
+                    return [
+                        'status' => false,
+                        'message' => 'O usuário não possui o valor em saldo.'
+                    ];  
+                }
+                // If there is no error, we will return transfer data to the controller.
+                return [
+                    'status' => true,
+                    'arrayPayer' => $arrayPayer[0],
+                    'arrayPayee' => $arrayPayee[0],
+                    'value' => $arrayRequest['value']
+                ];
+            } else {
                 return [
                     'status' => false,
-                    'message' => 'Esse tipo de usuário não pode realizar pagamentos.'
+                    'message' => 'A senha do usuário está incorreta.'
                 ];
             }
-            // Checks whether the user who is making the payment has
-            // in balance the money to make the payment.
-            if ($arrayRequest['value'] > $arrayPayer[0]['balance']) {
-                return [
-                    'status' => false,
-                    'message' => 'O usuário não possui o valor em saldo.'
-                ];  
-            }
-            // If there is no error, we will return transfer data to the controller.
-            return [
-                'status' => true,
-                'arrayPayer' => $arrayPayer[0],
-                'arrayPayee' => $arrayPayee[0],
-                'value' => $arrayRequest['value']
-            ];
         } else {
             return [
                 'status' => false,
@@ -107,7 +115,10 @@ class TransactionRepository extends BaseRepository {
                     DB::commit();
                     return [
                         'status' => true,
-                        'message' => 'A transferência ocorreu com sucesso.'
+                        'message' => 'A transferência ocorreu com sucesso.',
+                        'idPayer' => $arrayTransfer['arrayPayer']['id'],
+                        'idPayee' => $arrayTransfer['arrayPayee']['id'],
+                        'value' => $arrayTransfer['value']
                     ];
                 } else {
                     DB::rollback();
@@ -129,5 +140,29 @@ class TransactionRepository extends BaseRepository {
                 'message' => 'Ocorreu um erro inesperado ao realizar a transferência.'
             ];
         }
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * This method will check if the paying user's password matches what was passed in the request.
+     * 
+     * @param array $arrayTransfer
+     * @param array $arrayPayer
+     * 
+     * @return array
+     */
+    private function verifyPassword($arrayRequest, $arrayPayer) {
+        $user = new User();
+        $arrayUser = $user->getUserByAccountId($arrayPayer[0]['id']);
+        if ($arrayUser != null) {
+            $encryptPassword = base64_encode(md5($arrayRequest['password'], true));
+            if ($encryptPassword == $arrayUser[0]['password']) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
     }
 }

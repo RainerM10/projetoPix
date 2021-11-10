@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\User;
+use App\Account;
 use App\Validation\UserValidation;
 use App\Repositories\UserRepository;
 
@@ -46,7 +47,7 @@ class UserController extends Controller {
      */
     public function create(Request $request, User $user) {
         // We will validate the request parameters.
-        if ($this->userValidation->validateDate($request)) {
+        if ($this->userValidation->validateData($request)) {
             $arrayInsert = [
                 'fullName' => $request->full_name,
                 'cpf' => $request->cpf,
@@ -79,7 +80,7 @@ class UserController extends Controller {
                 $code = 400;
             }
         } else {
-            $retorno['message'] = 'Algum(ns) do(s) parâmetros enviados não seguem o padrão exigido.';
+            $retorno['message'] = 'Algum(ns) do(s) parâmetros enviados não seguem o padrão exigido ou estão faltando.';
             $retorno['status'] = false;
             $code = 400;  
         }

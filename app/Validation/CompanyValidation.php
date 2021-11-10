@@ -10,7 +10,7 @@ class CompanyValidation extends BaseValidation {
      * 
      * @return boolean
      */
-    public function validateDate($request = null) {
+    public function validateData($request = null) {
         if ($request != null) {
             return $this->baseValidation($request->all(), [
                 'company_name' => 'required|string',
